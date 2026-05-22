@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Samsung Finance+ Simulator</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons for realism -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+  <!-- Auth Gate Screen -->
+  <div id="auth-gate" class="auth-container">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <i class="fa-solid fa-file-invoice-dollar logo-icon"></i>
+        <h1>SAMSUNG <span>Finance+</span></h1>
+        <p class="auth-subtitle">Ecosystem Simulation Environment</p>
+      </div>
+
+      <form id="login-form">
+        <div class="input-group">
+          <label for="username">Email / Dealer ID</label>
+          <div class="input-wrapper">
+            <i class="fa-regular fa-envelope"></i>
+            <input type="text" id="username" placeholder="dealer@samsung.com" required>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <div class="input-wrapper">
+            <i class="fa-solid fa-lock"></i>
+            <input type="password" id="password" placeholder="••••••••" required>
+          </div>
+        </div>
+
+        <div id="auth-error" class="error-box hidden">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          <span id="error-message">Invalid credentials</span>
+        </div>
+
+        <button type="submit" class="btn-primary">
+          <span>Authenticate Session</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="demo-logins">
+        <p>Or log in using a demo account:</p>
+        <div class="demo-buttons">
+          <button type="button" class="btn-demo" onclick="fillCredentials('dealer@samsung.com')">
+            <i class="fa-solid fa-shop"></i> Merchant Profile
+          </button>
+          <button type="button" class="btn-demo" onclick="fillCredentials('customer@samsung.com')">
+            <i class="fa-solid fa-user"></i> Customer Profile
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulator Main Environment -->
+  <div id="simulator-env" class="simulator-container hidden">
+    <header class="main-header">
+      <div class="header-logo">
+        <i class="fa-solid fa-laptop-code"></i>
+        <h2>Samsung Finance+ <span>Simulator Workspace</span></h2>
+      </div>
+      <div class="header-actions">
+        <div class="session-badge">
+          <i class="fa-solid fa-circle-user"></i>
+          <span id="session-user">dealer@samsung.com</span>
+        </div>
+        <button id="logout-btn" class="btn-logout">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </div>
+    </header>
+
+    <div class="main-layout">
+      <!-- CUSTOMER APP VIEWPORT -->
+      <div class="app-column">
+        <div class="column-meta">
+          <h3>Customer App View <span class="tag tag-customer">Customer</span></h3>
+          <p>Mockup of the customer's self-serve portal</p>
+          <button class="btn-demo" id="simulate-lock-btn" onclick="toggleKnoxLock()" style="margin-top: 8px; font-size: 0.75rem; background: rgba(239, 83, 80, 0.15); border-color: rgba(239, 83, 80, 0.3); color: #ef5350; cursor: pointer; border-radius: 8px; padding: 4px 10px;">
+            <i class="fa-solid fa-triangle-exclamation"></i> Trigger Knox Lock
+          </button>
+        </div>
+        
+        <!-- Phone Mockup Frame -->
+        <div class="phone-mockup samsung-s24">
+          <div class="phone-speaker"></div>
+          <div class="phone-camera"></div>
+          
+          <div class="phone-screen" id="customer-screen">
+            <!-- Screen Status Bar -->
+            <div class="status-bar">
+              <span class="time">10:30</span>
+              <div class="icons">
+                <i class="fa-solid fa-shield-halved secure-indicator" title="Knox Guard Active"></i>
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+              </div>
+            </div>
+
+            <!-- App Inner Content -->
+            <div class="app-content">
+              <!-- Customer App Nav Header -->
+              <div class="app-header">
+                <i class="fa-solid fa-bars"></i>
+                <h4>Samsung Finance+</h4>
+                <i class="fa-regular fa-bell"></i>
+              </div>
+
+              <div class="app-scroll-container">
+                <!-- Customer Intro -->
+                <div class="customer-hero">
+                  <div class="hero-text">
+                    <h2>Hello, Rohan Sharma</h2>
+                    <p>Customer ID: SFC-77391</p>
+                  </div>
+                  <div class="knox-guard-status safe" id="knox-status-badge">
+                    <i class="fa-solid fa-circle-check"></i>
+                    <span>Device Unlocked</span>
+                  </div>
+                </div>
+
+                <!-- Active Loan Card -->
+                <div class="loan-card animate-card">
+                  <div class="loan-card-header">
+                    <span>ACTIVE FINANCING</span>
+                    <span class="device-name">Galaxy S24 Ultra (512GB)</span>
+                  </div>
+                  <div class="loan-emi-detail">
+                    <h3>₹2,499 <span>/ month</span></h3>
+                    <p>Due Date: <strong id="due-date-display">05 Jun 2026</strong></p>
+                  </div>
+                  <div class="loan-progress-container">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 58.3%"></div>
+                    </div>
+                    <div class="progress-text">
+                      <span>7 of 12 EMIs Paid</span>
+                      <span>₹12,495 Outstanding</span>
+                    </div>
+                  </div>
+                  <button class="btn-pay-emi" id="pay-emi-btn">
+                    <i class="fa-solid fa-credit-card"></i> Pay EMI Now
+                  </button>
+                </div>
+
+                <!-- Quick Services -->
+                <h5 class="section-title">Quick Actions</h5>
+                <div class="actions-grid">
+                  <div class="action-item" onclick="showCustomerSection('history')">
+                    <div class="action-icon bg-blue"><i class="fa-solid fa-receipt"></i></div>
+                    <span>Transactions</span>
+                  </div>
+                  <div class="action-item" onclick="showCustomerSection('details')">
+                    <div class="action-icon bg-orange"><i class="fa-solid fa-circle-info"></i></div>
+                    <span>Loan Details</span>
+                  </div>
+                  <div class="action-item" onclick="openCustomerModal('locator')">
+                    <div class="action-icon bg-green"><i class="fa-solid fa-location-dot"></i></div>
+                    <span>Find Store</span>
+                  </div>
+                  <div class="action-item" onclick="openCustomerModal('support')">
+                    <div class="action-icon bg-red"><i class="fa-solid fa-headset"></i></div>
+                    <span>Support</span>
+                  </div>
+                </div>
+
+                <!-- Pre-approved Offer Banners -->
+                <h5 class="section-title">Offers for You</h5>
+                <div class="offer-banner">
+                  <div class="offer-desc">
+                    <h6>Upgrade to Galaxy Fold6</h6>
+                    <p>Up to 100% funding with 0% interest</p>
+                  </div>
+                  <div class="offer-action">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Customer App Nav Bottom -->
+              <div class="app-bottom-nav">
+                <button class="nav-btn active" onclick="showCustomerSection('home')">
+                  <i class="fa-solid fa-house"></i>
+                  <span>Home</span>
+                </button>
+                <button class="nav-btn" onclick="showCustomerSection('history')">
+                  <i class="fa-solid fa-file-invoice"></i>
+                  <span>Payments</span>
+                </button>
+                <button class="nav-btn" onclick="showCustomerSection('details')">
+                  <i class="fa-solid fa-user-gear"></i>
+                  <span>Settings</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Customer Slide-in Details / History -->
+            <div id="customer-overlay-section" class="overlay-section hidden">
+              <div class="overlay-header">
+                <button class="btn-back" onclick="showCustomerSection('home')">
+                  <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h4 id="customer-overlay-title">Payment History</h4>
+              </div>
+              <div class="overlay-content" id="customer-overlay-body">
+                <!-- Will be dynamically populated by app.js -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MERCHANT APP VIEWPORT -->
+      <div class="app-column">
+        <div class="column-meta">
+          <h3>Merchant App View <span class="tag tag-merchant">Dealer</span></h3>
+          <p>Mockup of the dealer-facing application portal</p>
+        </div>
+
+        <!-- Phone Mockup Frame -->
+        <div class="phone-mockup samsung-tab">
+          <div class="phone-speaker"></div>
+          <div class="phone-camera"></div>
+
+          <div class="phone-screen" id="merchant-screen">
+            <!-- Screen Status Bar -->
+            <div class="status-bar">
+              <span class="time">10:30</span>
+              <div class="icons">
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-signal"></i>
+                <i class="fa-solid fa-battery-full"></i>
+              </div>
+            </div>
+
+            <!-- App Inner Content -->
+            <div class="app-content">
+              <!-- Merchant App Header -->
+              <div class="app-header merchant">
+                <i class="fa-solid fa-bars"></i>
+                <h4>SF+ Merchant Portal</h4>
+                <div class="store-badge">BLR_409</div>
+              </div>
+
+              <!-- Main Dashboard Content -->
+              <div class="app-scroll-container" id="merchant-dashboard-content">
+                <!-- Welcome Banner -->
+                <div class="merchant-hero">
+                  <h2>Samsung Plaza, Bangalore</h2>
+                  <p>Executive: Ramesh Kumar</p>
+                </div>
+
+                <!-- Stats summary -->
+                <div class="stats-row">
+                  <div class="stat-box">
+                    <span class="num" id="stat-loans-count">4</span>
+                    <span class="label">Approved Today</span>
+                  </div>
+                  <div class="stat-box">
+                    <span class="num text-warning">1</span>
+                    <span class="label">Pending Signature</span>
+                  </div>
+                </div>
+
+                <!-- Start New Loan Application Button -->
+                <button class="btn-start-loan" id="start-loan-btn">
+                  <i class="fa-solid fa-circle-plus"></i>
+                  <span>New Finance Application</span>
+                </button>
+
+                <!-- Recent applications list -->
+                <h5 class="section-title">Recent Transactions</h5>
+                <div class="application-list" id="merchant-app-list">
+                  <!-- Dynamically populated in app.js -->
+                </div>
+              </div>
+
+              <!-- New Loan Wizard View (Initially Hidden) -->
+              <div class="app-scroll-container hidden" id="merchant-wizard-content">
+                <div class="wizard-header">
+                  <button class="btn-text-back" id="cancel-wizard-btn">
+                    <i class="fa-solid fa-chevron-left"></i> Cancel
+                  </button>
+                  <h5>New Finance Plan</h5>
+                  <div class="step-indicator">Step <span id="current-step">1</span> of 3</div>
+                </div>
+
+                <!-- Step 1: Customer Details -->
+                <div class="wizard-step" id="wizard-step-1">
+                  <p class="step-guide">Enter customer's registered identity for eligibility validation.</p>
+                  <div class="form-group">
+                    <label>Mobile Number</label>
+                    <input type="tel" id="cust-phone" placeholder="Enter 10-digit number" value="9876543210">
+                  </div>
+                  <div class="form-group">
+                    <label>PAN Card / National ID</label>
+                    <input type="text" id="cust-pan" placeholder="ABCDE1234F" value="ABCDE1234F">
+                  </div>
+                  <button class="btn-next-step" onclick="goToWizardStep(2)">
+                    Check Eligibility <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+
+                <!-- Step 2: Product & EMI Selection -->
+                <div class="wizard-step hidden" id="wizard-step-2">
+                  <p class="step-guide">Select device and customize financing plan.</p>
+                  
+                  <div class="form-group">
+                    <label>Select Device</label>
+                    <select id="device-select" onchange="updateEmiCalculator()">
+                      <option value="s24_ultra" data-price="129999">Galaxy S24 Ultra (512GB) - ₹1,29,999</option>
+                      <option value="a55" data-price="39999" selected>Galaxy A55 5G (128GB) - ₹39,999</option>
+                      <option value="m34" data-price="18999" data-price="18999">Galaxy M34 (128GB) - ₹18,999</option>
+                    </select>
+                  </div>
+
+                  <!-- Dynamic Calculator Calculations -->
+                  <div class="calc-panel">
+                    <div class="calc-row">
+                      <span>Device Price:</span>
+                      <span id="calc-device-price">₹39,999</span>
+                    </div>
+                    <div class="calc-row">
+                      <span>Down Payment (30%):</span>
+                      <span id="calc-down-payment">₹11,999</span>
+                    </div>
+                    <div class="calc-row highlighted">
+                      <span>Financed Amount:</span>
+                      <span id="calc-loan-amount">₹28,000</span>
+                    </div>
+                  </div>
+
+                  <div class="form-group">
+                    <label>EMI Tenure (Months)</label>
+                    <div class="tenure-selector">
+                      <button type="button" class="btn-tenure" onclick="setTenure(6)">6m</button>
+                      <button type="button" class="btn-tenure active" onclick="setTenure(12)">12m</button>
+                      <button type="button" class="btn-tenure" onclick="setTenure(18)">18m</button>
+                    </div>
+                  </div>
+
+                  <div class="calc-emi-result">
+                    <span class="lbl">Estimated Monthly EMI:</span>
+                    <span class="val" id="calc-emi-monthly">₹2,333/mo</span>
+                  </div>
+
+                  <button class="btn-next-step" onclick="goToWizardStep(3)">
+                    Generate Loan Agreement <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+
+                <!-- Step 3: E-Sign & Disbursal -->
+                <div class="wizard-step hidden" id="wizard-step-3">
+                  <p class="step-guide">Ask the customer to review the agreement and e-sign.</p>
+                  
+                  <div class="agreement-box">
+                    <h6>Samsung Finance+ Agreement</h6>
+                    <p>I hereby agree to purchase the selected device under the monthly installment agreement. I understand that device usage is monitored by <strong>Samsung Knox Guard</strong>. Non-payment of dues within 3 business days of the grace period will result in automated device lock states.</p>
+                    <p>Financing Partner: <strong>DMI Finance Pvt Ltd</strong></p>
+                  </div>
+
+                  <div class="signature-line">
+                    <label>Draw Signature / Enter Name</label>
+                    <input type="text" id="cust-signature" placeholder="Type Customer Name to Sign" value="Rohan Sharma">
+                  </div>
+
+                  <button class="btn-next-step success" id="disburse-loan-btn">
+                    <i class="fa-solid fa-wallet"></i> Complete & Disburse Loan
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Payment Modal -->
+  <div id="payment-gateway-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h5>Unified Payment Interface (UPI)</h5>
+        <button onclick="closePaymentModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="payment-summary">
+          <span class="lbl">Paying to:</span>
+          <span class="val">Samsung Finance+ / DMI</span>
+          <span class="lbl">Amount:</span>
+          <span class="val highlighted" id="payment-amount-val">₹2,499.00</span>
+        </div>
+        <div class="upi-apps">
+          <button class="btn-upi-app" onclick="executeMockPayment('gpay')">
+            <i class="fa-brands fa-google-pay icon-gpay"></i> Google Pay
+          </button>
+          <button class="btn-upi-app" onclick="executeMockPayment('phonepe')">
+            <i class="fa-solid fa-mobile-screen"></i> PhonePe
+          </button>
+          <button class="btn-upi-app" onclick="executeMockPayment('bhim')">
+            <i class="fa-solid fa-building-columns"></i> BHIM UPI
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- General Info Modal -->
+  <div id="info-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h5 id="info-modal-title">Information</h5>
+        <button onclick="closeInfoModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="info-modal-body">
+        <!-- populated dynamically -->
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

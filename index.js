@@ -1,59 +1,100 @@
 const http = require('http');
+const fs = require('fs');
+const path = require('path');
 
 const port = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/html');
-  res.end(`
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Hello World!</title>
-      <style>
-        body {
-          margin: 0;
-          padding: 0;
-          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-          background: radial-gradient(circle at center, #1e1e38 0%, #0f0f1a 100%);
-          color: #ffffff;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100vh;
-          overflow: hidden;
+  // CORS Headers for safety
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    res.writeHead(200);
+    res.end();
+    return;
+  }
+
+  // Handle Mock Authentication API
+  if (req.method === 'POST' && req.url === '/api/login') {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); });
+    req.on('end', () => {
+      try {
+        const { username, password } = JSON.parse(body);
+        // Simple demo credentials:
+        // dealer@samsung.com / samsung123
+        // customer@samsung.com / samsung123
+        if (
+          (username === 'dealer@samsung.com' || username === 'customer@samsung.com' || username === 'admin') &&
+          password === 'samsung123'
+        ) {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            success: true, 
+            token: 'demo-token-12345', 
+            role: username === 'customer@samsung.com' ? 'customer' : 'merchant'
+          }));
+        } else {
+          res.writeHead(401, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ 
+            success: false, 
+            message: 'Invalid credentials. Use dealer@samsung.com or customer@samsung.com with password samsung123' 
+          }));
         }
-        .container {
-          text-align: center;
-          animation: fadeIn 1.5s ease-out;
-        }
-        h1 {
-          font-size: 3.5rem;
-          margin-bottom: 10px;
-          background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-        }
-        p {
-          font-size: 1.2rem;
-          color: #8f9cae;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <h1>Hello from Railway! 🚀</h1>
-        <p>Your automatic mockup deployment pipeline is ready.</p>
-      </div>
-    </body>
-    </html>
-  `);
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: false, message: 'Invalid JSON request' }));
+      }
+    });
+    return;
+  }
+
+  // Serve static files from public directory
+  let requestedUrl = req.url === '/' ? '/index.html' : req.url;
+  let filePath = path.join(__dirname, 'public', requestedUrl);
+  
+  // Guard against directory traversal
+  const publicDir = path.join(__dirname, 'public');
+  if (!filePath.startsWith(publicDir)) {
+    res.writeHead(403);
+    res.end('Forbidden');
+    return;
+  }
+
+  const ext = path.extname(filePath);
+  let contentType = 'text/html';
+  if (ext === '.css') contentType = 'text/css';
+  else if (ext === '.js') contentType = 'application/javascript';
+  else if (ext === '.json') contentType = 'application/json';
+  else if (ext === '.png') contentType = 'image/png';
+  else if (ext === '.jpg') contentType = 'image/jpeg';
+  else if (ext === '.svg') contentType = 'image/svg+xml';
+  else if (ext === '.ico') contentType = 'image/x-icon';
+
+  fs.readFile(filePath, (err, content) => {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        // Serve index.html for routing fallback
+        fs.readFile(path.join(publicDir, 'index.html'), (err2, fallback) => {
+          if (err2) {
+            res.writeHead(404);
+            res.end('Not Found');
+          } else {
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(fallback);
+          }
+        });
+      } else {
+        res.writeHead(500);
+        res.end('Server Error');
+      }
+    } else {
+      res.writeHead(200, { 'Content-Type': contentType });
+      res.end(content);
+    }
+  });
 });
 
 server.listen(port, () => {
