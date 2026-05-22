@@ -1,0 +1,10 @@
+{
+  "name": "railway-hello-world",
+  "version": "1.0.0",
+  "description": "Hello World mockup for Railway",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {}
+}
